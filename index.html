@@ -1,0 +1,132 @@
+<html>
+
+<head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Distance to KPU Surrey Library</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDwgTIrVq3I404JL0aSchNJIb7LAo2NlPA&libraries=geometry&callback=initMap" async defer></script>
+   
+   <script>
+
+        let map;
+        let kpuLibraryMarker;
+        let userMarker;
+
+        function initMap() {
+            
+            // KPU Surrey Library Coordinates
+            const library = { lat: 49.1320146, lng: -122.8715212 };
+
+            // Have the map centered on the library by default 
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: library,
+                zoom: 15
+            });
+
+            // Place marker on the library
+            libraryMarker = new google.maps.Marker({
+                position: library,
+                map: map,
+                title: 'KPU Surrey Library'
+            });
+
+            // Get the coordinates of the user
+            if (navigator.geolocation) {
+
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const user = {
+
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    // Place marker on the user's coordinates
+                    userMarker = new google.maps.Marker({
+
+                        position: user,
+                        map: map,
+                        title: 'User'
+                    });
+
+                    // Change the zoom level so that it displays both markers
+                    const newZoom = new google.maps.LatLngBounds();
+
+                    newZoom.extend(library);
+                    newZoom.extend(user);
+
+                    map.fitBounds(newZoom);
+
+
+                    // Calculate the amount of distance in meters between the coordinates of the user and the library
+                    const distanceMeters = google.maps.geometry.spherical.computeDistanceBetween(
+
+                        new google.maps.LatLng(user.lat, user.lng),
+
+                        new google.maps.LatLng(library.lat, library.lng)
+                    );
+                    
+                    // Convert the distance into kilometers with two decimal places 
+                    const distanceKM = (distanceMeters / 1000).toFixed(2);
+                    
+                    // Display the distance
+                    document.getElementById('distance').textContent = `You are ${distanceKM}km away from the KPU Surrey Library`;
+
+                });
+            } else {
+
+                // error
+                handleLocationError(false, map.getCenter());
+
+            }
+        }
+    </script>
+</head>
+
+
+<body>
+
+  <!-- Navbar -->
+    <nav>
+
+        <div class="logo">
+            <img src="kpu_logo.png" alt="KPU Logo" class="logo-image">
+            <p>KWANTLEN POLYTECHNIC UNIVERSITY</p>
+        </div>
+
+        <ul>
+            <li><a href="#">Why KPU</a></li> 
+            <li><a href="#">Programs</a></li>
+            <li><a href="#">Admissions</a></li>
+            <li><a href="#">About KPU</a></li>
+            <li><a href="#">News & Events</a></li>
+        </ul>
+
+    </nav>
+
+    <!-- Display background image -->
+    <div class="background_image">
+
+        <!-- apply filter to make the background image darker -->
+        <div class="content-overlay">
+
+            <h1>Welcome to KPU Surrey Library</h1>
+
+            <!-- Display the distance between the user and library -->
+            <p id="distance"></p>
+
+            <!-- Display Google Map -->
+            <div id="map" class="map"></div>
+
+        </div>
+
+    </div>
+
+</body>
+
+
+
+</html>
